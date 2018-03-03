@@ -269,6 +269,8 @@ nav h1 a {
 	color: white;
 	/* border-radius: top left, top right, bottom right, bottom left */
 	border-radius: 25px 0px 0px 0px;
+	display: inline-block;
+	overflow: hidden;
 }
 
 #reviews-list li .review-header span {
@@ -289,6 +291,14 @@ nav h1 a {
 #reviews-list li .review-body {
 	width: calc(100% - 40px);
 	padding: 20px;
+}
+
+#reviews-list li .review-body span {
+	text-transform: uppercase;
+	padding: 10px;
+	color: white;
+	background-color: orange;
+	border-radius: 5px;
 }
 
 #restaurant-hours td {
