@@ -147,6 +147,8 @@ nav h1 a {
 /* ====================== Restaurant Listing ====================== */
 #restaurants-list {
 	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
   background-color: #f3f3f3;
   list-style: outside none none;
   margin: 0;
@@ -361,13 +363,20 @@ nav h1 a {
 	}
 }
 
-/* Rearrange review boxes into two columns */
 @media screen and (min-width: 750px) {
+
+	/* Rearrange restaurant boxes into two columns */
+	#restaurants-list li {
+		width: calc(50% - 40px);
+	}
+
+	/* Rearrange review boxes into two columns */
 	#reviews-list li {
 		width: calc(50% - 12px);
     margin-right: 15px;
 	}
 
+	/* TODO: Check browser compatibility. nth-child(even) will work in here */
 	#reviews-list li.even {
     margin-right: 0;
 	}
