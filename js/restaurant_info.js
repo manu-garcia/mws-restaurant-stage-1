@@ -106,8 +106,11 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
     return;
   }
   const ul = document.getElementById('reviews-list');
+  // Controls when a review is even or odd, for styling purposes
+  let evenOddIndex = 1;
   reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
+    ul.appendChild(createReviewHTML(review, evenOddIndex));
+    evenOddIndex++;
   });
   container.appendChild(ul);
 }
@@ -115,8 +118,9 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create review HTML and add it to the webpage.
  */
-createReviewHTML = (review) => {
+createReviewHTML = (review, evenOddIndex) => {
   const li = document.createElement('li');
+  li.className = evenOddIndex % 2 ? 'odd' : 'even';
 
  // Header will contain the name and date
   const header = document.createElement('div');
