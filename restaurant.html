@@ -8,9 +8,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Normalize.css for better cross-browser consistency -->
   <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
-  <!-- Main CSS file -->
-  <link rel="stylesheet" href="css/styles.css">
+
   <title>Restaurant Info</title>
+
 </head>
 
 <body class="inside">
@@ -40,6 +40,7 @@
     <section id="restaurant-container">
       <h1 id="restaurant-name"></h1>
       <!-- TODO: Reuse css classes here -->
+      <!-- TODO: Use div background image to avoid images being stretched? -->
       <img id="restaurant-img">
       <p id="restaurant-cuisine"></p>
       <p id="restaurant-address"></p>
@@ -60,13 +61,26 @@
   </footer>
   <!-- End footer -->
 
-  <!-- Beginning scripts -->
-  <!-- Database helpers -->
-  <script src="js/dbhelper.js"></script>
-  <!-- Main javascript file -->
-  <script src="js/restaurant_info.js"></script>
+
+  <script>
+    
+    var m;
+    
+    document.addEventListener('DOMContentLoaded', (event) => {
+
+      // Webpack exports the restaurant info class within a library called restaurant_info
+      m = new restaurant_info.RestaurantInfo();
+      if (m) {
+        m.initMap();
+      }
+
+    });
+
+  </script>
+
   <!-- Google Maps -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwgr9efEx_DEPGt-L0Y6_hn_O4LJj-eIg&callback=initMap"></script>
+  <!-- TODO: Move google maps api to a vendor bundle -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwgr9efEx_DEPGt-L0Y6_hn_O4LJj-eIg"></script>
   <!-- End scripts -->
 
 </body>
