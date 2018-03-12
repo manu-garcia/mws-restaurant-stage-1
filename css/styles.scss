@@ -141,13 +141,13 @@ nav h1 a {
   margin: 10px;
   padding: 0 10px;
 	/* There are two filter boxes. They will share the 100% width minus margins. */
-	width: calc((100% - 45px) / 2)
+	width: calc((100% - 45px) / 2);
+	font-size: 1rem;
 }
 
 /* ====================== Restaurant Listing ====================== */
 #restaurants-list {
 	width: 100%;
-	display: flex;
 	flex-wrap: wrap;
   background-color: #f3f3f3;
   list-style: outside none none;
@@ -204,8 +204,6 @@ nav h1 a {
   width: 100%;
   z-index: 1000;
 }
-.inside #map-container {
-}
 .inside #map {
   background-color: #ccc;
 	/* TODO: Work on the height of the map! */
@@ -247,8 +245,7 @@ nav h1 a {
 	width: 100%;
 	table-layout: fixed;
 }
-#reviews-container {
-}
+
 
 #reviews-container h2 {
   color: #f58500;
@@ -352,17 +349,21 @@ nav h1 a {
 
 }
 
-@media screen and (min-width: 960px) {
+@media screen and (min-width: 840px) {
 
 	body {
 		/* Larger screens will have content centered with margins at the sides */
-		max-width: 960px;
+		max-width: 840px;
 		margin-left: auto;
 		margin-right: auto;
 	}
 }
 
 @media screen and (min-width: 750px) {
+
+	#restaurants-list{
+		display: flex;
+	}	
 
 	/* Rearrange restaurant boxes into two columns */
 	#restaurants-list li {

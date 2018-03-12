@@ -49,6 +49,12 @@ export class RestaurantInfo {
     image.className = 'restaurant-img'
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
+    // Restaurant image will be displayed using almos 100% of the viewport width
+    image.sizes="calc(100vw - 40px)"
+    
+    // img srcset based on photograph name and expected sizes.
+    image.srcset = DBHelper.imageSrcsetForRestaurant(restaurant);
+
     const cuisine = document.getElementById('restaurant-cuisine');
     cuisine.innerHTML = restaurant.cuisine_type;
 

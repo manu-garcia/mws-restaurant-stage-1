@@ -181,6 +181,7 @@ export class Main {
     image.sizes="(min-width: 750px) 40vw, 80vw"
     
     // img srcset based on photograph name and expected sizes.
+    // TODO: Polifill srcset with http://scottjehl.github.io/picturefill/
     image.srcset = DBHelper.imageSrcsetForRestaurant(restaurant);
     
     li.append(image);
