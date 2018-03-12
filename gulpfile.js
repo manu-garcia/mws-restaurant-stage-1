@@ -1,23 +1,23 @@
 
-var gulp = require('gulp');
-var webpack = require('webpack');
-var webpackDevServer = require('webpack-dev-server');
-var opn = require('opn');
-var path = require('path');
+const gulp = require('gulp');
+const webpack = require('webpack');
+const webpackDevServer = require('webpack-dev-server');
+const opn = require('opn');
+const path = require('path');
+
+const responsive = require('gulp-responsive-images');
 
 // Production
-var webpackConfigProduction = require('./webpack.production.config');
+const webpackConfigProduction = require('./webpack.production.config');
 
 // Develompent
-var webpackConfigDevelopment = require('./webpack.development.config');
-var webpackDevServerConfig = require('./webpack.devserver.config');
+const webpackConfigDevelopment = require('./webpack.development.config');
+const webpackDevServerConfig = require('./webpack.devserver.config');
 
 /**
  * Build the production bundles.
  */
-gulp.task('build', function (callback) {
-
-  process.env.NODE_ENV = 'production';
+gulp.task('build', ['responsive-images'], function (callback) {
 
   var compiler = webpack(webpackConfigProduction, function () {
     callback();
@@ -28,9 +28,7 @@ gulp.task('build', function (callback) {
 /**
  * Task to develop locally, watch + bundeling + hot module replacement
  */
-gulp.task('watch', function (callback) {
-
-  process.env.NODE_ENV = 'development';
+gulp.task('watch', ['responsive-images'], function (callback) {
 
   webpackDevServer.addDevServerEntrypoints(webpackConfigDevelopment, webpackDevServerConfig);
   var compiler = webpack(webpackConfigDevelopment);
@@ -52,4 +50,24 @@ gulp.task('watch', function (callback) {
       });
 
     })
+});
+
+/**
+ * Creates different image sizes from the original images
+ */
+gulp.task('responsive-images', function () {
+  gulp.src('./img/**/*')
+  .pipe(responsive({
+    '*.jpg': [{
+      width: 320,
+      suffix: '-320'
+    }, {
+      width: 640,
+      suffix: '-640'
+    }, {
+      width: 800,
+      suffix: '-800'
+    }],
+  }))
+  .pipe(gulp.dest('build/img'));
 });

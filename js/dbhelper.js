@@ -151,7 +151,44 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
+    let [name, ext] = restaurant.photograph.split('.');
+    let sizes = this.getImageSizes();
+    let size = sizes[0] ? sizes[0] : '320';
+    
+    return `/img/${name}-${size}.${ext}`;
+
+  }
+
+  /**
+   * Restaurant srcset for multiple sizes based on the photograph name and the expected sizes
+   * 
+   * It would produce something like:
+   * 
+   *    srcset="img/photograph-name_320.jpg 320w, img/photograph-name_640.jpg 640w"
+   * 
+   * @param {obj} restaurant 
+   */
+  static imageSrcsetForRestaurant(restaurant) {
+
+    let [name, ext] = restaurant.photograph.split('.');
+    let sizes = this.getImageSizes();
+
+    let srcset = '';
+
+    srcset = sizes
+      .map( size => {
+        return `/img/${name}-${size}.${ext} ${size}w`;
+      })
+      .join(', ');
+
+    return srcset;
+  }
+
+  /**
+   * Defines the expexted sizes for responsive images
+   */
+  static getImageSizes () {
+    return ['320', '640', '800'];
   }
 
   /**

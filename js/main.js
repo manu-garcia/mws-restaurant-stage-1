@@ -173,6 +173,16 @@ export class Main {
     const image = document.createElement('img');
     image.className = 'restaurant-img';
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
+
+    // Restaurant image will be displayed at a 80% of the horizontal view port 
+    // while in a single column layout
+    // Once breakpoint at 750px is hit, layout would change to two columns, so image
+    // display size would be at 40% of the horizontal view port
+    image.sizes="(min-width: 750px) 40vw, 80vw"
+    
+    // img srcset based on photograph name and expected sizes.
+    image.srcset = DBHelper.imageSrcsetForRestaurant(restaurant);
+    
     li.append(image);
 
     const neighborhood = document.createElement('p');

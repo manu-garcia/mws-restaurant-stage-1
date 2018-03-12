@@ -166,7 +166,6 @@ nav h1 a {
   display: block;
   margin: 0;
   max-width: 100%;
-  min-height: 248px;
   min-width: 100%;
 
 	/* TODO: SASS mixin this */
@@ -391,4 +390,9 @@ nav h1 a {
 		max-height: 175px;
 		overflow: hidden;
 	}
+
+	#restaurants-list .restaurant-img {
+		min-height: 248px;
+	}
+
 }
