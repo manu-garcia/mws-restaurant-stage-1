@@ -168,10 +168,12 @@ export class Main {
 
     const name = document.createElement('h1');
     name.innerHTML = restaurant.name;
+    name.tabIndex = 0;
     li.append(name);
 
     const image = document.createElement('img');
     image.className = 'restaurant-img';
+    image.alt = "Restaurant " + restaurant.name;
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
     // Restaurant image will be displayed at a 80% of the horizontal view port 
@@ -197,6 +199,7 @@ export class Main {
     const more = document.createElement('a');
     more.innerHTML = 'View Details';
     more.href = DBHelper.urlForRestaurant(restaurant);
+    more.alt = "Restaurant " + restaurant.name;
     li.append(more);
 
     return li;

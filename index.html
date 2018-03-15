@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en-GB">
 
 <head>
   <!-- Setting up encoding to UTF-8 -->
@@ -27,9 +27,11 @@
     <section>
       <div class="filter-options">
         <h2>Filter Results</h2>
+        <label class="invisible-label" for="neighborhoods-select">Neighborhoods</label>
         <select id="neighborhoods-select" name="neighborhoods" onchange="m.updateRestaurants()">
           <option value="all">All Neighborhoods</option>
         </select>
+        <label class="invisible-label" for="cuisines-select">Cuisines</label>        
         <select id="cuisines-select" name="cuisines" onchange="m.updateRestaurants()">
           <option value="all">All Cuisines</option>
         </select>

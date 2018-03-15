@@ -46,7 +46,8 @@ export class RestaurantInfo {
     address.innerHTML = restaurant.address;
 
     const image = document.getElementById('restaurant-img');
-    image.className = 'restaurant-img'
+    image.className = 'restaurant-img';
+    image.alt = "Restaurant " + restaurant.name;    
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
     // Restaurant image will be displayed using almos 100% of the viewport width
