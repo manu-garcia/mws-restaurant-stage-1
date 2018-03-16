@@ -1,4 +1,5 @@
 import DBHelper from './dbhelper.js';
+import './init_sw.js';
 import '../css/styles.scss';
 
 export class RestaurantInfo {
@@ -18,9 +19,10 @@ export class RestaurantInfo {
       callback(null, this.restaurant)
       return;
     }
-    const id = this.getParameterByName('id');
-    if (!id) { // no id found in URL
-      error = 'No restaurant id in URL'
+    const id = localStorage.getItem('restaurant_id');
+
+    if (!id) {
+      error = 'No restaurant id in local storage'
       callback(error, null);
     } else {
       DBHelper.fetchRestaurantById(id, (error, restaurant) => {

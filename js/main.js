@@ -1,4 +1,5 @@
 import DBHelper from './dbhelper.js';
+import './init_sw.js';
 import '../css/styles.scss';
 
 export class Main {
@@ -198,8 +199,12 @@ export class Main {
 
     const more = document.createElement('a');
     more.innerHTML = 'View Details';
-    more.href = DBHelper.urlForRestaurant(restaurant);
-    more.alt = "Restaurant " + restaurant.name;
+    // more.href = DBHelper.urlForRestaurant(restaurant);
+    more.href = "./restaurant.html";
+    more.alt = 'Restaurant ' + restaurant.name;
+    more.addEventListener('click', () => {
+      localStorage.setItem('restaurant_id', restaurant.id);
+    }, false);
     li.append(more);
 
     return li;

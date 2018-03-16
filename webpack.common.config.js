@@ -97,12 +97,12 @@ module.exports = {
 
     // Copy the service worker and inject in it the list of assets for pre-cache and cache version
     // Notice runing this plugin after CopyWebpackPlugin will include copied files too
-    // new InterpolateSWPlugin({
-    //   from: './public/sw.js',
-    //   to: 'sw.js',
-    //   replaceCacheVersion: true,
-    //   replaceAssetFiles: true,
-    // }),
+    new InterpolateSWPlugin({
+      from: './sw.js',
+      to: 'sw.js',
+      replaceCacheVersion: true,
+      replaceAssetFiles: true,
+    }),
 
   ]
 };
