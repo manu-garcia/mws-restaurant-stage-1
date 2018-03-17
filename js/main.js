@@ -169,7 +169,6 @@ export class Main {
 
     const name = document.createElement('h1');
     name.innerHTML = restaurant.name;
-    name.tabIndex = 0;
     li.append(name);
 
     const image = document.createElement('img');
