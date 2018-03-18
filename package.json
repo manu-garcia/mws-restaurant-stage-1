@@ -4,7 +4,8 @@
   "description": "MWS Restaurant",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "firebase deploy",
+    "test": "protractor protractor.test.js"
   },
   "repository": {
     "type": "git",
