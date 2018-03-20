@@ -12,9 +12,9 @@ export class RestaurantInfo {
   }
 
   /**
-   * Get current restaurant from page URL.
+   * Get current restaurant from local storage.
    */
-  fetchRestaurantFromURL (callback) {
+  fetchRestaurant (callback) {
     if (this.restaurant) { // restaurant already fetched!
       callback(null, this.restaurant)
       return;
@@ -193,7 +193,7 @@ export class RestaurantInfo {
   * Initialize Google map, called from HTML.
   */
   initMap () {
-    this.fetchRestaurantFromURL((error, restaurant) => {
+    this.fetchRestaurant((error, restaurant) => {
 
       if (error) { // Got an error!
 
