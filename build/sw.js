@@ -1,12 +1,12 @@
 // SW_CACHE_VERSION will be replaced while copying this file to the build directory with InterpolateSWPlugin
-const appCacheVersion = 'mws-restaurant-v' + '1521580637555';
+const appCacheVersion = 'mws-restaurant-v' + '1521585461599';
 
 // SW_ASSET_FILES will be fed with all the generated assets for pre-cache purposes
 //  while copying this file to the build directory with InterpolateSWPlugin
-const bundledAssets = ["restaurant_info.36260805.js",
+const bundledAssets = ["restaurant_info.24d85ad2.js",
 "main.6cd62725.js",
-"commons.a468da74.js",
-"styles.a468da74.css"];
+"commons.2401a511.js",
+"styles.2401a511.css"];
 const staticAssets = [
   "index.html",
   "restaurant.html",
