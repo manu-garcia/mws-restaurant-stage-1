@@ -97,7 +97,7 @@ export class RestaurantInfo {
   */
   fillReviewsHTML (reviews) {
     const container = document.getElementById('reviews-container');
-    const title = document.createElement('h2');
+    const title = document.createElement('h3');
     title.innerHTML = 'Reviews';
     container.appendChild(title);
 
@@ -162,6 +162,7 @@ export class RestaurantInfo {
     const breadcrumb = document.getElementById('breadcrumb');
     const li = document.createElement('li');
     li.innerHTML = restaurant.name;
+    li.setAttribute('aria-current', "page");
     breadcrumb.appendChild(li);
   }
 

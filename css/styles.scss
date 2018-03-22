@@ -2,6 +2,8 @@
 /* CSS Document */
 
 $color_blue: #225a9b;
+$color_grey: #f3f3f3;
+$max-width: 800px;
 
 * {
 	font-family: Arial, Helvetica, sans-serif;
@@ -13,7 +15,7 @@ body,td,th,p{
 	line-height: 1.2em;
 }
 body {
-	background-color: #fdfdfd;
+	background-color:$color_grey;
 	margin: 0;
 	position:relative;
 }
@@ -29,9 +31,11 @@ a {
 a:hover, a:focus {
 	text-decoration: none;
 }
+img{
+	max-width: 100%;
+}
 a img{
 	border: none 0px #fff;
-	max-width: 100%;
 }
 h1, h2, h3, h4, h5, h6 {
   margin: 0 0 20px;
@@ -40,7 +44,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	display: block;
 }
 #maincontent {
-  background-color: #f3f3f3;
+  background-color: $color_grey;
   min-height: 100%;
 }
 #footer {
@@ -78,6 +82,9 @@ nav h1 a {
   font-weight: lighter;
 	letter-spacing: 0px;
   text-transform: uppercase;
+}
+nav.breadcrumb {
+	text-align: left;
 }
 #breadcrumb {
     list-style: none;
@@ -155,7 +162,7 @@ nav h1 a {
 #restaurants-list {
 	width: 100%;
 	flex-wrap: wrap;
-  background-color: #f3f3f3;
+  background-color: $color_grey;
   list-style: outside none none;
   margin: 0;
 }
@@ -223,6 +230,7 @@ nav h1 a {
 }
 #restaurant-img {
 	width: 100%;
+	max-width: $max-width;
 
 	/* TODO: SASS mixin this */
 	/* border-radius: top left, top right, bottom right, bottom left */
@@ -244,8 +252,9 @@ nav h1 a {
 #restaurant-container, #reviews-container {
   border-bottom: 1px solid #d9d9d9;
   border-top: 1px solid #fff;
-  width: calc(100% - 40px);
+	width: calc(100% - 40px);
 	padding: 20px;
+	max-width: $max-width;	
 }
 #restaurant-hours {
 	width: 100%;
@@ -267,7 +276,7 @@ nav h1 a {
 #reviews-list li {
 	width: 100%;
   background-color: #fff;
-  border: 2px solid #f3f3f3;
+  border: 2px solid $color_grey;
   list-style-type: none;
   margin: 0 0 20px 0;
 	/* border-radius: top left, top right, bottom right, bottom left */
@@ -400,6 +409,24 @@ nav h1 a {
 
 	#restaurants-list .restaurant-img {
 		min-height: 248px;
+	}
+
+}
+
+// In the restaurant detail view, set restaurant details and reviews side by side
+@media screen and (min-width: 900px) {
+	
+	#restaurant-sections {
+		display: flex;
+	}
+
+	#restaurant-container, #reviews-container {
+		width: calc(50% - 40px);
+	}
+
+	#reviews-list li {
+		width: calc(100%);
+		margin-right: 0;
 	}
 
 }

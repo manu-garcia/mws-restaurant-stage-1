@@ -21,9 +21,11 @@
       <h1><a href="/">Restaurant Reviews</a></h1>
     </nav>
     <!-- Beginning breadcrumb -->
-    <ul id="breadcrumb" role="menubar" aria-label="breadcrumbs">
-      <li role="menuitem"><a href="/">Home</a></li>
-    </ul>
+    <nav aria-label="Breadcrumb" class="breadcrumb">
+      <ol id="breadcrumb">
+        <li><a href="/">Home</a></li>
+      </ol>
+    </nav>
     <!-- End breadcrumb -->
     <!-- End nav -->
   </header>
@@ -32,26 +34,28 @@
   <!-- Beginning main -->
   <main id="maincontent">
     <!-- Beginning map -->
-    <section id="map-container">
-      <div id="map"></div>
+    <section id="map-container" tabindex="-1">
+      <div id="map" role="application" aria-roledescription="Restaurant Google map"></div>
     </section>
     <!-- End map -->
-    <!-- Beginning restaurant -->
-    <section id="restaurant-container">
-      <h1 id="restaurant-name"></h1>
-      <!-- TODO: Reuse css classes here -->
-      <!-- TODO: Use div background image to avoid images being stretched? -->
-      <img id="restaurant-img">
-      <p id="restaurant-cuisine"></p>
-      <p id="restaurant-address"></p>
-      <table id="restaurant-hours"></table>
-    </section>
-    <!-- end restaurant -->
-    <!-- Beginning reviews -->
-    <section id="reviews-container">
-      <ul id="reviews-list"></ul>
-    </section>
-    <!-- End reviews -->
+    <div id="restaurant-sections">
+      <!-- Beginning restaurant -->
+      <section id="restaurant-container">
+        <h2 id="restaurant-name"></h2>
+        <!-- TODO: Reuse css classes here -->
+        <!-- TODO: Use div background image to avoid images being stretched? -->
+        <img id="restaurant-img">
+        <p id="restaurant-cuisine"></p>
+        <p id="restaurant-address"></p>
+        <table id="restaurant-hours"></table>
+      </section>
+      <!-- end restaurant -->
+      <!-- Beginning reviews -->
+      <section id="reviews-container">
+        <ul id="reviews-list"></ul>
+      </section>
+      <!-- End reviews -->
+    </div>
   </main>
   <!-- End main -->
 
