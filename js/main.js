@@ -1,3 +1,4 @@
+import 'intersection-observer';
 import DBHelper from './dbhelper.js';
 import './init_sw.js';
 import '../css/styles.scss';
@@ -10,6 +11,7 @@ export class Main {
       this.cuisines = [];
       this.map = null;
       this.markers = [];
+      this.imageObserver = null;
   }
 
 
@@ -18,11 +20,81 @@ export class Main {
    */
   initApp () {
 
+    this.initImageLazyLoader();
     this.initMap();
 
     this.fetchNeighborhoods();
     this.fetchCuisines();
 
+  }
+
+  /**
+   * Sets up the image lazy loader. Larger images will be loaded once visible. 
+   */
+  initImageLazyLoader () {
+
+    var options = {
+      // As soon as any pixel is visible, image will be loaded
+      threshold: 0
+    }
+    
+    // InersectionObserver has been pollyfilled by "intersection-observer" npm package
+    this.imageObserver = new IntersectionObserver(this.imageLazyLoader.bind(this), options);
+
+  }
+
+  /**
+   * Callback called whenever an observed intersection ocurrs.
+   * 
+   * @param {*} intersections : List of intersections happened
+   * @param {*} observer : The observer watching the intersections
+   * 
+   */
+  imageLazyLoader (intersections, observer) {
+
+    intersections.forEach((intersection) => {
+      // Load the image as soon as any part of the image is visible
+      if (intersection.intersectionRatio > 0) {
+        this.lazyLoadImage(intersection.target);
+      }
+    });
+  }
+
+  /**
+   * Lazy loads a responsive image
+   * 
+   * @param {*} image : image element to be lazy loaded
+   * 
+   *  data-sizes and data-srcset image attributes are expected to be used instead
+   *  sizes and srcset repectively.
+   * 
+   */
+  lazyLoadImage (image) {
+    
+    const sizes = image.dataset.sizes;
+    const srcset = image.dataset.srcset;
+
+    this.fetchResponsiveImage(sizes, srcset).then(() => {
+      image.sizes = sizes;
+      image.srcset = srcset;
+    })
+
+  }
+
+  /**
+   * fetches the responsive image
+   * 
+   * @param {*} sizes : image sizes attribute
+   * @param {*} srcset : image srcset attribute
+   */
+  fetchResponsiveImage (sizes, srcset) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.sizes = sizes;
+      image.srcset = srcset;
+      image.onload = resolve;
+      image.onerror = reject;
+    });
   }
 
   /**
@@ -180,11 +252,17 @@ export class Main {
     // while in a single column layout
     // Once breakpoint at 750px is hit, layout would change to two columns, so image
     // display size would be at 40% of the horizontal view port
-    image.sizes="(min-width: 750px) 40vw, 80vw"
-    
+    // As we'd like to lazy load images, we use data-sizes in here to avoid direct loading of images
+    image.setAttribute('data-sizes', "(min-width: 750px) 40vw, 80vw");
+
     // img srcset based on photograph name and expected sizes.
     // TODO: Polifill srcset with http://scottjehl.github.io/picturefill/
-    image.srcset = DBHelper.imageSrcsetForRestaurant(restaurant);
+    // As we'd like to lazy load images, we use data-srcset in here to avoid direct loading of images    
+    image.setAttribute('data-srcset', DBHelper.imageSrcsetForRestaurant(restaurant));
+    
+    // Observe the position/visibility of the image element in the viewport, to 
+    // lazy load images only if they are visible
+    this.imageObserver.observe(image);
     
     li.append(image);
 
@@ -202,8 +280,8 @@ export class Main {
     more.href = "./restaurant.html";
     more.alt = 'Restaurant ' + restaurant.name;
     more.addEventListener('click', () => {
-      localStorage.setItem('restaurant_id', restaurant.id);
-    }, false);
+       localStorage.setItem('restaurant_id', restaurant.id);
+     }, false);
     li.append(more);
 
     return li;

@@ -9,27 +9,23 @@ class DBHelper {
    */
   static get DATABASE_URL() {
     // const port = 8000 // Change this to your server port
-    // return `http://localhost:${port}/data/restaurants.json`;
-    return '/data/restaurants.json';
+    return `http://localhost:1337/restaurants`;
+    // return '/data/restaurants.json';
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
+    fetch(DBHelper.DATABASE_URL)
+      .then(response => response.json())
+      .catch(error => {
+        callback(`Request failed with error: ${error.message}`, null);
+      })
+      .then(response => {
+        const restaurants = response;
         callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
-      }
-    };
-    xhr.send();
+      });
   }
 
   /**
@@ -151,11 +147,10 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    let [name, ext] = restaurant.photograph.split('.');
     let sizes = this.getImageSizes();
-    let size = sizes[0] ? sizes[0] : '320';
+    let size = sizes[0] ? sizes[0] : '5';
     
-    return `/img/${name}-${size}.${ext}`;
+    return `/img/${restaurant.photograph}-${size}.jpg`;
 
   }
 
@@ -170,14 +165,13 @@ class DBHelper {
    */
   static imageSrcsetForRestaurant(restaurant) {
 
-    let [name, ext] = restaurant.photograph.split('.');
     let sizes = this.getImageSizes();
 
     let srcset = '';
 
     srcset = sizes
       .map( size => {
-        return `/img/${name}-${size}.${ext} ${size}w`;
+        return `/img/${restaurant.photograph}-${size}.jpg ${size}w`;
       })
       .join(', ');
 
@@ -188,7 +182,7 @@ class DBHelper {
    * Defines the expexted sizes for responsive images
    */
   static getImageSizes () {
-    return ['320', '640', '800'];
+    return ['5', '320', '640', '800'];
   }
 
   /**

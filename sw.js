@@ -7,44 +7,53 @@ const bundledAssets = ["%SW_ASSET_FILES%"];
 const staticAssets = [
   "index.html",
   "restaurant.html",
-  "data/restaurants.json",
   
+  "img/1-5.jpg",
   "img/1-320.jpg",
   "img/1-640.jpg",
   "img/1-800.jpg",
 
+  "img/2-5.jpg",
   "img/2-320.jpg",
   "img/2-640.jpg",
   "img/2-800.jpg",
 
+  "img/3-5.jpg",
   "img/3-320.jpg",
   "img/3-640.jpg",
   "img/3-800.jpg",
 
+  "img/4-5.jpg",
   "img/4-320.jpg",
   "img/4-640.jpg",
   "img/4-800.jpg",
 
+  "img/5-5.jpg",
   "img/5-320.jpg",
   "img/5-640.jpg",
   "img/5-800.jpg",
 
+  "img/6-5.jpg",
   "img/6-320.jpg",
   "img/6-640.jpg",
   "img/6-800.jpg",
 
+  "img/7-5.jpg",
   "img/7-320.jpg",
   "img/7-640.jpg",
   "img/7-800.jpg",
 
+  "img/8-5.jpg",
   "img/8-320.jpg",
   "img/8-640.jpg",
   "img/8-800.jpg",
 
+  "img/9-5.jpg",
   "img/9-320.jpg",
   "img/9-640.jpg",
   "img/9-800.jpg",
 
+  "img/10-5.jpg",
   "img/10-320.jpg",
   "img/10-640.jpg",
   "img/10-800.jpg",

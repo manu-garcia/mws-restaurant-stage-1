@@ -1,53 +1,62 @@
 // SW_CACHE_VERSION will be replaced while copying this file to the build directory with InterpolateSWPlugin
-const appCacheVersion = 'mws-restaurant-v' + '1521762732791';
+const appCacheVersion = 'mws-restaurant-v' + '1524857334198';
 
 // SW_ASSET_FILES will be fed with all the generated assets for pre-cache purposes
 //  while copying this file to the build directory with InterpolateSWPlugin
-const bundledAssets = ["restaurant_info.aaa54356.js",
-"main.b47158c9.js",
-"commons.f40ba041.js",
-"styles.f40ba041.css"];
+const bundledAssets = ["main.fe8a6919.js",
+"restaurant_info.d225d50a.js",
+"commons.78d97fc2.js",
+"styles.78d97fc2.css"];
 const staticAssets = [
   "index.html",
   "restaurant.html",
-  "data/restaurants.json",
   
+  "img/1-5.jpg",
   "img/1-320.jpg",
   "img/1-640.jpg",
   "img/1-800.jpg",
 
+  "img/2-5.jpg",
   "img/2-320.jpg",
   "img/2-640.jpg",
   "img/2-800.jpg",
 
+  "img/3-5.jpg",
   "img/3-320.jpg",
   "img/3-640.jpg",
   "img/3-800.jpg",
 
+  "img/4-5.jpg",
   "img/4-320.jpg",
   "img/4-640.jpg",
   "img/4-800.jpg",
 
+  "img/5-5.jpg",
   "img/5-320.jpg",
   "img/5-640.jpg",
   "img/5-800.jpg",
 
+  "img/6-5.jpg",
   "img/6-320.jpg",
   "img/6-640.jpg",
   "img/6-800.jpg",
 
+  "img/7-5.jpg",
   "img/7-320.jpg",
   "img/7-640.jpg",
   "img/7-800.jpg",
 
+  "img/8-5.jpg",
   "img/8-320.jpg",
   "img/8-640.jpg",
   "img/8-800.jpg",
 
+  "img/9-5.jpg",
   "img/9-320.jpg",
   "img/9-640.jpg",
   "img/9-800.jpg",
 
+  "img/10-5.jpg",
   "img/10-320.jpg",
   "img/10-640.jpg",
   "img/10-800.jpg",

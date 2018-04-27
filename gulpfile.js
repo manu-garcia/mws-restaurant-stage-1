@@ -59,6 +59,9 @@ gulp.task('responsive-images', function () {
   gulp.src('./img/**/*')
   .pipe(responsive({
     '*.jpg': [{
+      width: 5,
+      suffix: '-5'
+    }, {
       width: 320,
       suffix: '-320'
     }, {
