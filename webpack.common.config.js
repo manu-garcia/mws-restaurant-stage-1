@@ -89,10 +89,11 @@ module.exports = {
       minify: minifyHTMLOptions
     }),
 
-    // Copy the service worker as it is to the build folder
+    // Copy common public assets to the build folder
     new CopyWebpackPlugin([
-      // TODO: Data should be in DB not in a file
-      { from: './data/', to: './data/' },
+
+      { from: './public/', to: './' },
+      
     ]),
 
     // Copy the service worker and inject in it the list of assets for pre-cache and cache version
