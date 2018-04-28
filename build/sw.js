@@ -6,14 +6,14 @@ if (!String.prototype.startsWith) {
 }
 
 // SW_CACHE_VERSION will be replaced while copying this file to the build directory with InterpolateSWPlugin
-const appCacheVersion = 'mws-restaurant-v' + '1524911451423';
+const appCacheVersion = 'mws-restaurant-v' + '1524913158063';
 
 // SW_ASSET_FILES will be fed with all the generated assets for pre-cache purposes
 //  while copying this file to the build directory with InterpolateSWPlugin
-const bundledAssets = ["main.0a2b90d2.js",
+const bundledAssets = ["main.61d1ce58.js",
 "restaurant_info.0be0f4b7.js",
-"commons.1a297223.js",
-"styles.1a297223.css"];
+"commons.c7ea0ea4.js",
+"styles.c7ea0ea4.css"];
 const staticAssets = [
   "index.html",
   "restaurant.html",

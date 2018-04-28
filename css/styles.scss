@@ -184,6 +184,9 @@ nav.breadcrumb {
 	/* TODO: SASS mixin this */
 	/* border-radius: top left, top right, bottom right, bottom left */
 	border-radius: 25px 0px 15px 0px;
+
+	// Sets a minimun height so that Intersection Observer has a height to calculate with
+	min-height: 200px;
 }
 #restaurants-list li h1 {
   color: $color_blue;

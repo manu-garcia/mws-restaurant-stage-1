@@ -35,7 +35,7 @@ export class Main {
 
     var options = {
       // As soon as any pixel is visible, image will be loaded
-      threshold: 0
+      threshold: 0.5
     }
     
     // InersectionObserver has been pollyfilled by "intersection-observer" npm package
@@ -54,7 +54,7 @@ export class Main {
 
     intersections.forEach((intersection) => {
       // Load the image as soon as any part of the image is visible
-      if (intersection.intersectionRatio > 0) {
+      if (intersection.intersectionRatio >= 0.5) {
         this.lazyLoadImage(intersection.target);
       }
     });
