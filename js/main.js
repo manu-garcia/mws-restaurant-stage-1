@@ -276,12 +276,8 @@ export class Main {
 
     const more = document.createElement('a');
     more.innerHTML = 'View Details';
-    // more.href = DBHelper.urlForRestaurant(restaurant);
-    more.href = "./restaurant.html";
+    more.href = DBHelper.urlForRestaurant(restaurant);
     more.alt = 'Restaurant ' + restaurant.name;
-    more.addEventListener('click', () => {
-       localStorage.setItem('restaurant_id', restaurant.id);
-     }, false);
     li.append(more);
 
     return li;

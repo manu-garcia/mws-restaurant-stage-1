@@ -1,12 +1,19 @@
+// Polyfilling startsWith
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(search, pos) {
+		return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+	};
+}
+
 // SW_CACHE_VERSION will be replaced while copying this file to the build directory with InterpolateSWPlugin
-const appCacheVersion = 'mws-restaurant-v' + '1524857334198';
+const appCacheVersion = 'mws-restaurant-v' + '1524911451423';
 
 // SW_ASSET_FILES will be fed with all the generated assets for pre-cache purposes
 //  while copying this file to the build directory with InterpolateSWPlugin
-const bundledAssets = ["main.fe8a6919.js",
-"restaurant_info.d225d50a.js",
-"commons.78d97fc2.js",
-"styles.78d97fc2.css"];
+const bundledAssets = ["main.0a2b90d2.js",
+"restaurant_info.0be0f4b7.js",
+"commons.1a297223.js",
+"styles.1a297223.css"];
 const staticAssets = [
   "index.html",
   "restaurant.html",
@@ -99,10 +106,14 @@ self.addEventListener('activate', (event) => {
  * Intercepts application's requests and serves them first from cache.
  */
 self.addEventListener('fetch', (event) => {
+
+  const url = new URL(event.request.url);
+  let ignoreSearch = url.pathname.startsWith('/restaurant.html');
+
   event.respondWith(
 
     // Request in cache?
-    caches.match(event.request).then((cacheResponse) => {
+    caches.match(event.request, { ignoreSearch: ignoreSearch }).then((cacheResponse) => {
       
       return cacheResponse || fetch(event.request).then((fetchedResponse) => {
 

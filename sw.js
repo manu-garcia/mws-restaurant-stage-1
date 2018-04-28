@@ -1,3 +1,10 @@
+// Polyfilling startsWith
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(search, pos) {
+		return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+	};
+}
+
 // SW_CACHE_VERSION will be replaced while copying this file to the build directory with InterpolateSWPlugin
 const appCacheVersion = 'mws-restaurant-v' + '"%SW_CACHE_VERSION%"';
 
@@ -96,10 +103,14 @@ self.addEventListener('activate', (event) => {
  * Intercepts application's requests and serves them first from cache.
  */
 self.addEventListener('fetch', (event) => {
+
+  const url = new URL(event.request.url);
+  let ignoreSearch = url.pathname.startsWith('/restaurant.html');
+
   event.respondWith(
 
     // Request in cache?
-    caches.match(event.request).then((cacheResponse) => {
+    caches.match(event.request, { ignoreSearch: ignoreSearch }).then((cacheResponse) => {
       
       return cacheResponse || fetch(event.request).then((fetchedResponse) => {
 

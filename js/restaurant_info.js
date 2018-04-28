@@ -19,7 +19,7 @@ export class RestaurantInfo {
       callback(null, this.restaurant)
       return;
     }
-    const id = localStorage.getItem('restaurant_id');
+    const id = this.getParameterByName('id');
 
     if (!id) {
       error = 'No restaurant id in local storage'
