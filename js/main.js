@@ -12,6 +12,7 @@ export class Main {
       this.map = null;
       this.markers = [];
       this.imageObserver = null;
+      this.db = null;
   }
 
 
@@ -20,13 +21,35 @@ export class Main {
    */
   initApp () {
 
-    this.initImageLazyLoader();
-    this.initMap();
+    this.initDB().then(() => {
 
-    this.fetchNeighborhoods();
-    this.fetchCuisines();
+      this.initImageLazyLoader();
+      this.initMap();
+  
+      this.fetchNeighborhoods();
+      this.fetchCuisines();
+  
+    });
 
   }
+
+  /**
+   * Initilizes the offline DB and gets the restaurants from the network with offline first technique.
+   */
+  initDB () {
+    this.db = new DBHelper();
+    let idOpenedPromise = this.db.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      this.db.fetchRestaurants(null, (error, restaurants) => {
+        if (error) return reject (error);
+
+        resolve(restaurants);
+
+      });      
+    });
+
+  }  
 
   /**
    * Sets up the image lazy loader. Larger images will be loaded once visible. 
@@ -101,7 +124,7 @@ export class Main {
    * Fetch all neighborhoods and set their HTML.
    */
   fetchNeighborhoods () {
-    DBHelper.fetchNeighborhoods((error, neighborhoods) => {
+    this.db.fetchNeighborhoods((error, neighborhoods) => {
       if (error) { // Got an error
         console.error('Main.fetchNeighborhoods: ', error);
       } else {
@@ -132,7 +155,7 @@ export class Main {
    * Fetch all cuisines and set their HTML.
    */
   fetchCuisines () {
-    DBHelper.fetchCuisines((error, cuisines) => {
+    this.db.fetchCuisines((error, cuisines) => {
       if (error) { // Got an error!
         console.error('Main.fetchCuisines: ', error);
       } else {
@@ -163,15 +186,18 @@ export class Main {
    * Initialize Google map, called from HTML.
    */
   initMap () {
+
     let loc = {
       lat: 40.722216,
       lng: -73.987501
     };
+
     this.map = new google.maps.Map(document.getElementById('map'), {
       zoom: 12,
       center: loc,
       scrollwheel: false
     });
+
     this.updateRestaurants();
   }
 
@@ -179,6 +205,7 @@ export class Main {
    * Update page and map for current restaurants.
    */
   updateRestaurants () {
+    
     const cSelect = document.getElementById('cuisines-select');
     const nSelect = document.getElementById('neighborhoods-select');
 
@@ -188,7 +215,7 @@ export class Main {
     const cuisine = cSelect[cIndex].value;
     const neighborhood = nSelect[nIndex].value;
 
-    DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
+    this.db.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
       if (error) { // Got an error!
         console.error('Main.updateRestaurants: ', error);
       } else {
@@ -246,7 +273,7 @@ export class Main {
     const image = document.createElement('img');
     image.className = 'restaurant-img';
     image.alt = "Restaurant " + restaurant.name;
-    image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.src = this.db.imageUrlForRestaurant(restaurant);
 
     // Restaurant image will be displayed at a 80% of the horizontal view port 
     // while in a single column layout
@@ -258,7 +285,7 @@ export class Main {
     // img srcset based on photograph name and expected sizes.
     // TODO: Polifill srcset with http://scottjehl.github.io/picturefill/
     // As we'd like to lazy load images, we use data-srcset in here to avoid direct loading of images    
-    image.setAttribute('data-srcset', DBHelper.imageSrcsetForRestaurant(restaurant));
+    image.setAttribute('data-srcset', this.db.imageSrcsetForRestaurant(restaurant));
     
     // Observe the position/visibility of the image element in the viewport, to 
     // lazy load images only if they are visible
@@ -276,7 +303,7 @@ export class Main {
 
     const more = document.createElement('a');
     more.innerHTML = 'View Details';
-    more.href = DBHelper.urlForRestaurant(restaurant);
+    more.href = this.db.urlForRestaurant(restaurant);
     more.alt = 'Restaurant ' + restaurant.name;
     li.append(more);
 
@@ -291,7 +318,7 @@ export class Main {
     if (this.restaurants) {
       this.restaurants.forEach(restaurant => {
         // Add marker to the map
-        const marker = DBHelper.mapMarkerForRestaurant(restaurant, this.map);
+        const marker = this.db.mapMarkerForRestaurant(restaurant, this.map);
         google.maps.event.addListener(marker, 'click', () => {
           window.location.href = marker.url
         });

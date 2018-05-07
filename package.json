@@ -19,7 +19,7 @@
   "homepage": "https://github.com/manu-garcia/mws-restaurant-stage-1#readme",
   "dependencies": {
     "firebase": "^4.7.0",
-    "idb": "^2.0.4",
+    "idb": "^2.1.1",
     "intersection-observer": "^0.5.0"
   },
   "devDependencies": {

@@ -8,6 +8,7 @@ export class RestaurantInfo {
 
     this.restaurant = null;
     this.map = null;
+    this.db = new DBHelper();
 
   }
 
@@ -22,10 +23,10 @@ export class RestaurantInfo {
     const id = this.getParameterByName('id');
 
     if (!id) {
-      error = 'No restaurant id in local storage'
+      error = 'No restaurant id in url'
       callback(error, null);
     } else {
-      DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+      this.db.fetchRestaurantById(id, (error, restaurant) => {
         this.restaurant = restaurant;
         if (!restaurant) {
           console.error(error);
@@ -50,13 +51,13 @@ export class RestaurantInfo {
     const image = document.getElementById('restaurant-img');
     image.className = 'restaurant-img';
     image.alt = "Restaurant " + restaurant.name;    
-    image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.src = this.db.imageUrlForRestaurant(restaurant);
 
     // Restaurant image will be displayed using almos 100% of the viewport width
     image.sizes="calc(100vw - 40px)"
     
     // img srcset based on photograph name and expected sizes.
-    image.srcset = DBHelper.imageSrcsetForRestaurant(restaurant);
+    image.srcset = this.db.imageSrcsetForRestaurant(restaurant);
 
     const cuisine = document.getElementById('restaurant-cuisine');
     cuisine.innerHTML = restaurant.cuisine_type;
@@ -191,6 +192,19 @@ export class RestaurantInfo {
   }
 
   /**
+   * Initialize the db and maps
+   */
+  initApp () {
+
+    this.initDB().then(() => {
+
+      this.initMap();
+
+    });
+
+  }
+
+  /**
   * Initialize Google map, called from HTML.
   */
   initMap () {
@@ -209,10 +223,15 @@ export class RestaurantInfo {
         });
 
         this.fillBreadcrumb(restaurant);
-        DBHelper.mapMarkerForRestaurant(this.restaurant, this.map);
+        this.db.mapMarkerForRestaurant(this.restaurant, this.map);
       }
 
     });
   }
+
+  initDB () {
+    this.db = new DBHelper();
+    return this.db.openDatabase();
+  }  
 
 }
