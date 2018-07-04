@@ -2,8 +2,9 @@ import idb from 'idb';
 
 // Offline DB configuration
 const DB_NAME = 'mws-restaurants';
-const DB_VERSION = 1;
-const DB_STORE_NAME = 'restaurants';
+const DB_VERSION = 2;
+const DB_STORE_NAME_RESTAURANTS = 'restaurants';
+const DB_STORE_NAME_REVIEWS = 'reviews';
 
 /**
  * Common database helper functions.
@@ -18,14 +19,43 @@ class DBHelper {
    * Database URL.
    * Change this to restaurants.json file location on your server.
    */
+  getServerURL () {
+
+    return "http://localhost:1337";
+
+  }
+
+  /**
+   * Database URL.
+   * Change this to restaurants.json file location on your server.
+   */
   getRestaurantURL (id) {
 
-    let url = "http://localhost:1337/restaurants";
+    let url = this.getServerURL() + "/restaurants";
     if (id) {
       url += "/" + id;
     }
 
     return url;
+  }
+
+  /**
+   * All reviews for a restaurant 
+   */
+  getRestaurantReviewsURL (id) {
+
+    let url = this.getServerURL() + "/reviews?restaurant_id=" + id;
+
+    return url;
+  }
+
+  /**
+   * Reviews endpoint url
+   */
+  getReviewsURL () {
+
+    return this.getServerURL() + "/reviews/";
+
   }
 
   /**
@@ -43,7 +73,8 @@ class DBHelper {
     this.db = idb.open(DB_NAME, DB_VERSION, upgradeDb => {
 
       // Initialise store.
-      upgradeDb.createObjectStore(DB_STORE_NAME);
+      upgradeDb.createObjectStore(DB_STORE_NAME_RESTAURANTS);
+      upgradeDb.createObjectStore(DB_STORE_NAME_REVIEWS);
 
     });
 
@@ -62,7 +93,7 @@ class DBHelper {
   
       if (!db) return;
   
-      let objectStore = db.transaction(DB_STORE_NAME).objectStore(DB_STORE_NAME);
+      let objectStore = db.transaction(DB_STORE_NAME_RESTAURANTS).objectStore(DB_STORE_NAME_RESTAURANTS);
 
       if (id) {
         return objectStore.get(id);
@@ -86,24 +117,124 @@ class DBHelper {
   
       if (!db) return;
   
-      let tx = db.transaction(DB_STORE_NAME, 'readwrite');
+      let tx = db.transaction(DB_STORE_NAME_RESTAURANTS, 'readwrite');
 
       if (!id) {
         // All resaturants
-        tx.objectStore(DB_STORE_NAME).clear();
+        tx.objectStore(DB_STORE_NAME_RESTAURANTS).clear();
 
         data.forEach(restaurant => {
-          tx.objectStore(DB_STORE_NAME).put(restaurant, restaurant.id);
+          tx.objectStore(DB_STORE_NAME_RESTAURANTS).put(restaurant, restaurant.id);
         });
 
       } else {
         // Specific restaurant
-        tx.objectStore(DB_STORE_NAME).put(data, data.id);        
+        tx.objectStore(DB_STORE_NAME_RESTAURANTS).put(data, data.id);        
       }
     
       return tx.complete;
     });
   
+  }
+
+  /**
+   * Saves review in the offline DB
+   * 
+   * @param {any} data: review payload object to save
+   * 
+   */
+  setOfflineReview (data) {
+    
+    return this.db.then(db => {
+  
+      if (!data || !data._id) return;
+  
+      let tx = db.transaction(DB_STORE_NAME_REVIEWS, 'readwrite');
+
+      tx.objectStore(DB_STORE_NAME_REVIEWS).put(data, data._id);        
+    
+      return tx.complete;
+    });
+  
+  }
+
+  /**
+   * Submit all the reviews existing in the offline db
+   */
+  submitAllPendingReviewsSW () {
+
+    return this.getOfflineReviews().then((reviews) => {
+  
+      return new Promise((resolve, reject) => {
+        
+        var promises = [];
+  
+        reviews.forEach( (review) => {
+  
+          var promise = fetch(this.getRestaurantReviewsURL(review.restaurant_id), {
+              method: 'POST',
+              body: JSON.stringify(review)
+            })
+            .catch(error => {
+              reject(`Request failed with error: ${error.message}`);
+            })
+            .then(response => {
+              
+              this.deleteOfflineReview(review._id);
+                
+            });
+  
+          promises.push(promise);
+  
+        });
+  
+        resolve(Promise.all(promises));
+  
+      });
+  
+    });
+  }
+
+  /**
+   * Removes a specific review from the offline DB
+   * @param {*} id 
+   */
+  deleteOfflineReview (id) {
+    
+    return this.db.then(db => {
+  
+      if (!db) reject();
+
+      let tx = db.transaction(DB_STORE_NAME_REVIEWS, "readwrite");
+      
+      tx.objectStore(DB_STORE_NAME_REVIEWS).delete(id);
+        
+      return tx.complete;
+    });
+  
+  }
+
+  /**
+   * Gets reviews from the offline db only
+   * 
+   * @param {number} id: review pseudo id (_id)
+   * 
+   */
+  getOfflineReviews (id) {
+    
+    return this.db.then(db => {
+  
+      if (!db) return;
+  
+      let objectStore = db.transaction(DB_STORE_NAME_REVIEWS).objectStore(DB_STORE_NAME_REVIEWS);
+
+      if (id) {
+        return objectStore.get(id);
+      }
+
+      return objectStore.getAll();
+  
+    });
   }
 
   /**
@@ -119,9 +250,31 @@ class DBHelper {
       .then(response => {
         const restaurants = response;
 
-        this.setOfflineRestaurants(id, restaurants).then( () => {
-          callback(null, restaurants);
-        });
+        if (id) {
+
+          fetch(this.getRestaurantReviewsURL(id))
+          .then(response => response.json())
+          .catch(error => {
+            callback(`Request failed with error: ${error.message}`, null);
+          })
+          .then(reviewsResponse => {
+            const reviews = reviewsResponse;
+
+            restaurants.reviews = reviews;
+    
+            this.setOfflineRestaurants(id, restaurants).then( () => {
+              callback(null, restaurants);
+            });
+    
+          });
+  
+        } else {
+  
+          this.setOfflineRestaurants(id, restaurants).then( () => {
+            callback(null, restaurants);
+          });
+
+        }
 
       });
   

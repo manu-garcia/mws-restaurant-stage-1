@@ -71,6 +71,44 @@ export class RestaurantInfo {
       // fill reviews
       this.fillReviewsHTML(restaurant.reviews);
     }
+
+    var _this = this;    
+
+    var addReviewButton = document.getElementById("add-new-review-button");
+    if (addReviewButton) {
+    
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.ready
+          .then(reg => {
+
+            navigator.serviceWorker.addEventListener('message', message => {
+
+              if (message.data.command === 'submit-pending-reviews') {
+
+                this.db.submitAllPendingReviewsSW();
+
+              }
+            });
+
+            addReviewButton.addEventListener('click', (event) => {
+
+              event.preventDefault();
+              _this.setOfflineReview().then((review) => {
+
+                reg.sync.register(`submit-new-review-${review._id}`)
+                  .then(() => {
+
+                  });
+
+              });
+            });
+          });
+
+      } else {
+        // Send normal XHR
+      }
+    }
+
   }
 
   /**
@@ -120,6 +158,23 @@ export class RestaurantInfo {
     container.appendChild(ul);
   }
 
+  formatDate (date) {
+
+    if (!date) return '';
+
+    var dt = new Date(date);
+
+    var day = dt.getDate();
+    var monthIndex = dt.getMonth();
+    var year = dt.getFullYear();
+
+    var minutes = dt.getMinutes();
+    var hours = dt.getHours();
+
+    return `${year}-${monthIndex+1}-${day} ${hours}:${minutes}`;
+
+  }
+
   /**
   * Create review HTML and add it to the webpage.
   */
@@ -137,7 +192,7 @@ export class RestaurantInfo {
     header.appendChild(name);
 
     const date = document.createElement('span');
-    date.innerHTML = review.date;
+    date.innerHTML = this.formatDate(review.updatedAt);
     header.appendChild(date);
 
     // Boddy will contain the rating and review paragraph
@@ -189,6 +244,30 @@ export class RestaurantInfo {
     }
 
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
+  /**
+   * 
+   */
+  setOfflineReview () {
+
+    const form = document.getElementById('add-new-review-form');
+    const FD = new FormData(form);
+    const id = this.getParameterByName('id');
+    const payload = {
+      _id:  Math.random().toString(36).substr(2, 9),
+      restaurant_id: parseInt(id),
+      name: FD.get("name"),
+      rating: parseInt(FD.get("rating")),
+      comments: FD.get("comments")
+    };
+
+    // Save the payload before we send it
+    return this.db.setOfflineReview(payload).then(() => {
+      form.reset();
+      return payload;
+    });
+
   }
 
   /**

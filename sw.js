@@ -104,40 +104,50 @@ self.addEventListener('activate', (event) => {
  */
 self.addEventListener('fetch', (event) => {
 
-  const url = new URL(event.request.url);
-  let ignoreSearch = url.pathname.startsWith('/restaurant.html');
+  if (event.request.method == 'POST') {
+    
+    event.respondWith(
+      fetch(event.request)
+    );
 
-  event.respondWith(
+  } else {
 
-    // Request in cache?
-    caches.match(event.request, { ignoreSearch: ignoreSearch }).then((cacheResponse) => {
-      
-      return cacheResponse || fetch(event.request).then((fetchedResponse) => {
+    const url = new URL(event.request.url);
+    let ignoreSearch = url.pathname.startsWith('/restaurant.html');
 
-        // Better off cloning the response here. If done inside caches.open reponse could
-        // be already read by returning the original response.
-        var clonedFetchedResponse = fetchedResponse.clone();
+    event.respondWith(
 
-        // Request was not in the cache. We fetched it and now we save it in the cache.
-        caches.open(appCacheVersion).then((cache) => {
+      // Request in cache?
+      caches.match(event.request, { ignoreSearch: ignoreSearch }).then((cacheResponse) => {
+        
+        return cacheResponse || fetch(event.request).then((fetchedResponse) => {
 
-          // Reponse stream can be read only once so that it must be cloned.
-          cache.put(event.request, clonedFetchedResponse);
+          // Better off cloning the response here. If done inside caches.open reponse could
+          // be already read by returning the original response.
+          var clonedFetchedResponse = fetchedResponse.clone();
 
+          // Request was not in the cache. We fetched it and now we save it in the cache.
+          caches.open(appCacheVersion).then((cache) => {
+
+            // Reponse stream can be read only once so that it must be cloned.
+            cache.put(event.request, clonedFetchedResponse);
+
+          });
+
+          // Make sure reposnse is already cloned before returning here.
+          return fetchedResponse;
         });
 
-        // Make sure reposnse is already cloned before returning here.
-        return fetchedResponse;
-      });
+      })
+      .catch(() => {
 
-    })
-    .catch(() => {
+        // Fallback answer if there is no connectivity and request is not in cache.
+        return new Response('Fallback answer if there is no connectivity and request is not in cache.');
 
-      // Fallback answer if there is no connectivity and request is not in cache.
-      return new Response('Fallback answer if there is no connectivity and request is not in cache.');
+      })
+    );
+  }
 
-    })
-  );
 });
 
 /**
@@ -147,5 +157,30 @@ self.addEventListener('message', function(event) {
   // Activate the new service worker
   if (event.data.action === 'skipWaiting') {
     self.skipWaiting();
+  }
+});
+
+/**
+ * Message to the application thread
+ */
+function postMessageToClients(message) {
+  return clients.matchAll().then(allClients => {
+    for (const client of allClients) {
+      client.postMessage(message);
+    }
+  })
+};
+
+/**
+ * 'sync' will be invoked when having connectivity only (Done by the browser). Then we invoke the application to
+ * perform the desired action.
+ */
+self.addEventListener('sync', function (event) {
+  if (event.tag.startsWith('submit-new-review')) {
+    event.waitUntil(
+      postMessageToClients({
+        command: "submit-pending-reviews"
+      })
+    );
   }
 });

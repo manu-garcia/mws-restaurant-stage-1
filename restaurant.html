@@ -57,6 +57,31 @@
       <section id="reviews-container">
         <ul id="reviews-list"></ul>
       </section>
+
+      <section>
+        <div id="reviews-form">
+            <h3>Add new review</h3>
+            <form id="add-new-review-form">
+              <label for="name">Name</label>
+              <input type="text" name="name"></input>
+
+              <label for="rating">Rating</label>
+              <select name="rating">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+
+              <label for="comments">Rating text</label>
+              <textarea name="comments" rows="10" cols="30"></textarea>
+
+              <a id="add-new-review-button">Add review</a>
+            </form>
+          </div>    
+      </section>
       <!-- End reviews -->
     </div>
   </main>

@@ -50,6 +50,7 @@ if ('serviceWorker' in navigator) {
         if(refreshing) return;
         refreshing = true;
         window.location.reload();
+        return;
       });
 
     })
