@@ -50,8 +50,28 @@ export class RestaurantInfo {
    * Create restaurant HTML and add it to the webpage
    */
   fillRestaurantHTML (restaurant) {
+
     const name = document.getElementById('restaurant-name');
     name.innerHTML = restaurant.name;
+    
+    let favoriteClass = restaurant.is_favorite ? 'selected' : '';
+    this.favoriteIcon = document.createElement('span');
+    this.favoriteIcon.className = `favorite-icon ${favoriteClass}`;
+    this.favoriteIcon.innerHTML = "&#9733;";
+    this.favoriteIcon.onclick = (event) => {
+
+      const id = parseInt(this.getParameterByName('id'));
+
+      restaurant.is_favorite = !restaurant.is_favorite;
+      
+      this.db.setRestaurantFavorite(restaurant).then(() => {
+        let favoriteClass = restaurant.is_favorite ? 'selected' : '';
+        this.favoriteIcon.className = `favorite-icon ${favoriteClass}`;
+      });
+      
+    };
+
+    name.appendChild(this.favoriteIcon);
 
     const address = document.getElementById('restaurant-address');
     address.innerHTML = restaurant.address;

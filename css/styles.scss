@@ -235,7 +235,20 @@ nav.breadcrumb {
 #restaurant-name {
   color: $color_blue;
   font-weight: 200;
-  text-transform: uppercase;
+	text-transform: uppercase;
+	
+	.favorite-icon {
+		position: relative;
+		font-size: 20px;
+		top: -3px;
+		margin-left: 10px;
+		color: #333;
+		cursor: pointer;
+
+		&.selected {
+			color: rgb(243, 208, 8);
+		}
+	}
 }
 #restaurant-img {
 	width: 100%;

@@ -59,6 +59,10 @@ class DBHelper {
 
   }
 
+  getFavoriteRestaurantURL (restaurant) {
+    return this.getServerURL() + `/restaurants/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`;
+  }
+
   /**
    * Opens offline databse connection and creates the data store.
    * 
@@ -542,6 +546,21 @@ class DBHelper {
       }
     });
   }
+
+  setRestaurantFavorite(restaurant) {
+    
+    return fetch(this.getFavoriteRestaurantURL(restaurant), {
+      method: 'PUT'
+    })
+    .catch(error => {
+      reject(`Request failed with error: ${error.message}`);
+    })
+    .then(response => {
+      return response;
+    });
+
+  }
+  
 
   /**
    * Restaurant page URL.
