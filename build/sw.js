@@ -6,14 +6,14 @@ if (!String.prototype.startsWith) {
 }
 
 // SW_CACHE_VERSION will be replaced while copying this file to the build directory with InterpolateSWPlugin
-const appCacheVersion = 'mws-restaurant-v' + '1525704720619';
+const appCacheVersion = 'mws-restaurant-v' + '1530990324452';
 
 // SW_ASSET_FILES will be fed with all the generated assets for pre-cache purposes
 //  while copying this file to the build directory with InterpolateSWPlugin
 const bundledAssets = ["main.0739ba80.js",
-"restaurant_info.0501b1df.js",
-"commons.a61395bc.js",
-"styles.a61395bc.css"];
+"restaurant_info.3207abe8.js",
+"commons.11e486d4.js",
+"styles.11e486d4.css"];
 const staticAssets = [
   "index.html",
   "restaurant.html",
@@ -108,39 +108,57 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
-  let ignoreSearch = url.pathname.startsWith('/restaurant.html');
+  
+  // Do not cache the JSON restaurants or reviews, because they are cached in IndexedDB
+  let ignoreSearch = url.pathname.startsWith('/restaurant.html') ||
+                      url.pathname.startsWith('/restaurants') ||
+                      url.pathname.startsWith('/reviews');
 
-  event.respondWith(
+  if (event.request.method == 'POST' || ignoreSearch) {
+    
+    event.respondWith(
+      fetch(event.request)
+    );
 
-    // Request in cache?
-    caches.match(event.request, { ignoreSearch: ignoreSearch }).then((cacheResponse) => {
-      
-      return cacheResponse || fetch(event.request).then((fetchedResponse) => {
+  } else {
 
-        // Better off cloning the response here. If done inside caches.open reponse could
-        // be already read by returning the original response.
-        var clonedFetchedResponse = fetchedResponse.clone();
+    event.respondWith(
 
-        // Request was not in the cache. We fetched it and now we save it in the cache.
-        caches.open(appCacheVersion).then((cache) => {
+      // Request in cache?
+      caches.match(event.request, { ignoreSearch: ignoreSearch }).then((cacheResponse) => {
+        
+        return cacheResponse || fetch(event.request).then((fetchedResponse) => {
 
-          // Reponse stream can be read only once so that it must be cloned.
-          cache.put(event.request, clonedFetchedResponse);
+          if (!ignoreSearch) {
 
+            // Better off cloning the response here. If done inside caches.open reponse could
+            // be already read by returning the original response.
+            var clonedFetchedResponse = fetchedResponse.clone();
+
+            // Request was not in the cache. We fetched it and now we save it in the cache.
+            caches.open(appCacheVersion).then((cache) => {
+
+              // Reponse stream can be read only once so that it must be cloned.
+              cache.put(event.request, clonedFetchedResponse);
+
+            });
+
+          }
+
+          // Make sure reposnse is already cloned before returning here.
+          return fetchedResponse;
         });
 
-        // Make sure reposnse is already cloned before returning here.
-        return fetchedResponse;
-      });
+      })
+      .catch(() => {
 
-    })
-    .catch(() => {
+        // Fallback answer if there is no connectivity and request is not in cache.
+        return new Response('Fallback answer if there is no connectivity and request is not in cache.');
 
-      // Fallback answer if there is no connectivity and request is not in cache.
-      return new Response('Fallback answer if there is no connectivity and request is not in cache.');
+      })
+    );
+  }
 
-    })
-  );
 });
 
 /**
@@ -150,5 +168,30 @@ self.addEventListener('message', function(event) {
   // Activate the new service worker
   if (event.data.action === 'skipWaiting') {
     self.skipWaiting();
+  }
+});
+
+/**
+ * Message to the application thread
+ */
+function postMessageToClients(message) {
+  return clients.matchAll().then(allClients => {
+    for (const client of allClients) {
+      client.postMessage(message);
+    }
+  })
+};
+
+/**
+ * 'sync' will be invoked when having connectivity only (Done by the browser). Then we invoke the application to
+ * perform the desired action.
+ */
+self.addEventListener('sync', function (event) {
+  if (event.tag.startsWith('submit-new-review')) {
+    event.waitUntil(
+      postMessageToClients({
+        command: event.tag
+      })
+    );
   }
 });
