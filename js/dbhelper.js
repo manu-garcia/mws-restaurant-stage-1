@@ -2,9 +2,10 @@ import idb from 'idb';
 
 // Offline DB configuration
 const DB_NAME = 'mws-restaurants';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const DB_STORE_NAME_RESTAURANTS = 'restaurants';
 const DB_STORE_NAME_REVIEWS = 'reviews';
+const DB_STORE_NAME_PENDING_REVIEWS = 'pendingreviews';
 
 /**
  * Common database helper functions.
@@ -75,6 +76,10 @@ class DBHelper {
       // Initialise store.
       upgradeDb.createObjectStore(DB_STORE_NAME_RESTAURANTS);
       upgradeDb.createObjectStore(DB_STORE_NAME_REVIEWS);
+      
+      const pendingReviewsStore = upgradeDb.createObjectStore(DB_STORE_NAME_PENDING_REVIEWS);
+      pendingReviewsStore.createIndex("restaurant_id", "restaurant_id", { unique: false, multiEntry: true });
+      pendingReviewsStore.createIndex("_id", "_id", { unique: true, multiEntry: false });
 
     });
 
@@ -143,15 +148,15 @@ class DBHelper {
    * @param {any} data: review payload object to save
    * 
    */
-  setOfflineReview (data) {
+  setOfflinePendingReview (data) {
     
     return this.db.then(db => {
   
       if (!data || !data._id) return;
   
-      let tx = db.transaction(DB_STORE_NAME_REVIEWS, 'readwrite');
+      let tx = db.transaction(DB_STORE_NAME_PENDING_REVIEWS, 'readwrite');
 
-      tx.objectStore(DB_STORE_NAME_REVIEWS).put(data, data._id);        
+      tx.objectStore(DB_STORE_NAME_PENDING_REVIEWS).put(data, data._id);        
     
       return tx.complete;
     });
@@ -159,55 +164,60 @@ class DBHelper {
   }
 
   /**
-   * Submit all the reviews existing in the offline db
+   * Saves reviews in the offline DB
+   * 
+   * @param {any} reviews: review payload object to save
+   * 
    */
-  submitAllPendingReviewsSW () {
+  setOfflineReviews (reviews, restaurantId) {
+    
+    return this.db.then(db => {
+  
+      if (!reviews || !restaurantId) return;
+  
+      let tx = db.transaction(DB_STORE_NAME_REVIEWS, 'readwrite');
 
-    return this.getOfflineReviews().then((reviews) => {
+      tx.objectStore(DB_STORE_NAME_REVIEWS).put(reviews, restaurantId);        
+    
+      return tx.complete;
+    });
   
-      return new Promise((resolve, reject) => {
-        
-        var promises = [];
-  
-        reviews.forEach( (review) => {
-  
-          var promise = fetch(this.getRestaurantReviewsURL(review.restaurant_id), {
-              method: 'POST',
-              body: JSON.stringify(review)
-            })
-            .catch(error => {
-              reject(`Request failed with error: ${error.message}`);
-            })
-            .then(response => {
-              
-              this.deleteOfflineReview(review._id);
-                
-            });
-  
-          promises.push(promise);
-  
+  }
+
+  /**
+   * Submit one review existing in the offline db
+   */
+  submitPendingReviewSW (_id) {
+
+    return this.getOfflinePendingReviewById(_id).then((review) => {
+    
+      return fetch(this.getRestaurantReviewsURL(review.restaurant_id), {
+          method: 'POST',
+          body: JSON.stringify(review)
+        })
+        .catch(error => {
+          reject(`Request failed with error: ${error.message}`);
+        })
+        .then(response => {
+          this.deleteOfflinePendingReview(review._id);
         });
-  
-        resolve(Promise.all(promises));
-  
-      });
   
     });
   }
 
   /**
    * Removes a specific review from the offline DB
-   * @param {*} id 
+   * @param {*} _id 
    */
-  deleteOfflineReview (id) {
+  deleteOfflinePendingReview (_id) {
     
     return this.db.then(db => {
   
       if (!db) reject();
 
-      let tx = db.transaction(DB_STORE_NAME_REVIEWS, "readwrite");
+      let tx = db.transaction(DB_STORE_NAME_PENDING_REVIEWS, "readwrite");
       
-      tx.objectStore(DB_STORE_NAME_REVIEWS).delete(id);
+      tx.objectStore(DB_STORE_NAME_PENDING_REVIEWS).delete(_id);
         
       return tx.complete;
     });
@@ -220,7 +230,7 @@ class DBHelper {
    * @param {number} id: review pseudo id (_id)
    * 
    */
-  getOfflineReviews (id) {
+  getOfflineReviews (restaurantId) {
     
     return this.db.then(db => {
   
@@ -228,11 +238,46 @@ class DBHelper {
   
       let objectStore = db.transaction(DB_STORE_NAME_REVIEWS).objectStore(DB_STORE_NAME_REVIEWS);
 
-      if (id) {
-        return objectStore.get(id);
-      }
+      return objectStore.get(restaurantId);
+  
+    });
+  }
 
-      return objectStore.getAll();
+  /**
+   * Gets pending review from the offline db only
+   * 
+   * @param {number} id: review pseudo id (_id)
+   * 
+   */
+  getOfflinePendingReviewById (_id) {
+    
+    return this.db.then(db => {
+  
+      if (!db) return;
+  
+      let objectStore = db.transaction(DB_STORE_NAME_PENDING_REVIEWS).objectStore(DB_STORE_NAME_PENDING_REVIEWS);
+
+      return objectStore.get(_id);
+  
+    });
+  }
+
+  /**
+   * Gets pending reviews from the offline db only
+   * 
+   * @param {number} restaurantId
+   * 
+   */
+  getOfflinePendingReviews (restaurantId) {
+    
+    return this.db.then(db => {
+  
+      if (!db) return;
+  
+      let objectStore = db.transaction(DB_STORE_NAME_PENDING_REVIEWS).objectStore(DB_STORE_NAME_PENDING_REVIEWS);
+      let myIndex = objectStore.index('restaurant_id'); 
+
+      return myIndex.getAll(restaurantId);
   
     });
   }
@@ -250,31 +295,9 @@ class DBHelper {
       .then(response => {
         const restaurants = response;
 
-        if (id) {
-
-          fetch(this.getRestaurantReviewsURL(id))
-          .then(response => response.json())
-          .catch(error => {
-            callback(`Request failed with error: ${error.message}`, null);
-          })
-          .then(reviewsResponse => {
-            const reviews = reviewsResponse;
-
-            restaurants.reviews = reviews;
-    
-            this.setOfflineRestaurants(id, restaurants).then( () => {
-              callback(null, restaurants);
-            });
-    
-          });
-  
-        } else {
-  
-          this.setOfflineRestaurants(id, restaurants).then( () => {
-            callback(null, restaurants);
-          });
-
-        }
+        this.setOfflineRestaurants(id, restaurants).then( () => {
+          callback(null, restaurants);
+        });
 
       });
   
@@ -316,6 +339,103 @@ class DBHelper {
 
   }
 
+  fetchRestaurantReviews(restaurantId, callback) {
+
+    // Get first the offline data if any
+    this.getOfflineReviews(restaurantId)
+      .then(data => {
+
+        if (data && data.length) {
+
+          this.getOfflinePendingReviews(restaurantId)
+            .then(pendingReviews => {
+
+              // Send the reviews in the offline db, while we try to get a new list from
+              // the network if getting all
+              callback(null, data.concat(pendingReviews));
+
+              // We may have some but not all reviews in the offline db,
+              // We have just shown the existing ones to the user, but now
+              // get all the reviews from the network
+
+            });
+
+        } 
+
+        // Get from the network
+        this.fetchReviewsFromNetwork(restaurantId)
+          .then( (reviews) => {
+
+            this.setOfflineReviews(reviews, restaurantId)
+              .then(() => {
+
+                this.getOfflinePendingReviews(restaurantId)
+                  .then(pendingReviews => {
+    
+                    callback(null, reviews.concat(pendingReviews));
+
+                  });
+              })
+              .catch((error) => {
+                callback(error, null);                
+              });
+
+          })
+          .catch((error) => {
+            callback(error, null);
+          });
+
+
+      })
+      .catch((error) => {
+        console.log('Error catching offline reviews: ', error);
+      });
+
+  }
+
+  fetchOfflineOnlyRestaurantReviews(restaurantId, callback) {
+
+    // Get first the offline data if any
+    this.getOfflineReviews(restaurantId)
+      .then(data => {
+
+        if (data && data.length) {
+
+          this.getOfflinePendingReviews(restaurantId)
+            .then(pendingReviews => {
+
+              // Send the reviews in the offline db, while we try to get a new list from
+              // the network if getting all
+              callback(null, data.concat(pendingReviews));
+
+              // We may have some but not all reviews in the offline db,
+              // We have just shown the existing ones to the user, but now
+              // get all the reviews from the network
+
+            });
+
+        }
+
+      })
+      .catch((error) => {
+        console.log('Error catching offline reviews: ', error);
+        callback(error, null);
+      });
+
+  }
+
+  fetchReviewsFromNetwork (restaurantId) {
+
+    return fetch(this.getRestaurantReviewsURL(restaurantId))
+      .then(response => response.json())
+      .catch(error => {
+        return `Request failed with error: ${error.message}`;
+      })
+      .then(reviewsResponse => {
+        return reviewsResponse;
+      });
+  }
+  
   /**
    * Fetches a restaurant by its ID with first offline technique.
    */

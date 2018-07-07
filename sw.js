@@ -104,16 +104,20 @@ self.addEventListener('activate', (event) => {
  */
 self.addEventListener('fetch', (event) => {
 
-  if (event.request.method == 'POST') {
+  const url = new URL(event.request.url);
+  
+  // Do not cache the JSON restaurants or reviews, because they are cached in IndexedDB
+  let ignoreSearch = url.pathname.startsWith('/restaurant.html') ||
+                      url.pathname.startsWith('/restaurants') ||
+                      url.pathname.startsWith('/reviews');
+
+  if (event.request.method == 'POST' || ignoreSearch) {
     
     event.respondWith(
       fetch(event.request)
     );
 
   } else {
-
-    const url = new URL(event.request.url);
-    let ignoreSearch = url.pathname.startsWith('/restaurant.html');
 
     event.respondWith(
 
@@ -122,17 +126,21 @@ self.addEventListener('fetch', (event) => {
         
         return cacheResponse || fetch(event.request).then((fetchedResponse) => {
 
-          // Better off cloning the response here. If done inside caches.open reponse could
-          // be already read by returning the original response.
-          var clonedFetchedResponse = fetchedResponse.clone();
+          if (!ignoreSearch) {
 
-          // Request was not in the cache. We fetched it and now we save it in the cache.
-          caches.open(appCacheVersion).then((cache) => {
+            // Better off cloning the response here. If done inside caches.open reponse could
+            // be already read by returning the original response.
+            var clonedFetchedResponse = fetchedResponse.clone();
 
-            // Reponse stream can be read only once so that it must be cloned.
-            cache.put(event.request, clonedFetchedResponse);
+            // Request was not in the cache. We fetched it and now we save it in the cache.
+            caches.open(appCacheVersion).then((cache) => {
 
-          });
+              // Reponse stream can be read only once so that it must be cloned.
+              cache.put(event.request, clonedFetchedResponse);
+
+            });
+
+          }
 
           // Make sure reposnse is already cloned before returning here.
           return fetchedResponse;
@@ -179,7 +187,7 @@ self.addEventListener('sync', function (event) {
   if (event.tag.startsWith('submit-new-review')) {
     event.waitUntil(
       postMessageToClients({
-        command: "submit-pending-reviews"
+        command: event.tag
       })
     );
   }
