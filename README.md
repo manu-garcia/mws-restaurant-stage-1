@@ -1,29 +1,44 @@
 # Mobile Web Specialist Certification Course
 ---
-#### _Three Stage Course Material Project - Restaurant Reviews_
 
-## Project Overview: Stage 1
+# Installing dependencies
 
-For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage One**, you will take a static design that lacks accessibility and convert the design to be responsive on different sized displays and accessible for screen reader use. You will also add a service worker to begin the process of creating a seamless offline experience for your users.
+After cloning the repository, install the project dependencies:
 
-### Specification
+```bash
+npm install
+```
 
-You have been provided the code for a restaurant reviews website. The code has a lot of issues. It’s barely usable on a desktop browser, much less a mobile device. It also doesn’t include any standard accessibility features, and it doesn’t work offline at all. Your job is to update the code to resolve these issues while still maintaining the included functionality.
+# Serving the pre-build project
 
-### What do I do from here?
+You can find the pre-built-project in the ./build/ folder.
 
-1. In this folder, start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer.
+Use python3 to serve it:
 
-In a terminal, check the version of Python you have: `python -V`. If you have Python 2.x, spin up the server with `python -m SimpleHTTPServer 8000` (or some other port, if port 8000 is already in use.) For Python 3.x, you can use `python3 -m http.server 8000`. If you don't have Python installed, navigate to Python's [website](https://www.python.org/) to download and install the software.
+```bash
+cd ./build
+python3 -m http.server
+```
 
-2. With your server running, visit the site: `http://localhost:8000`, and look around for a bit to see what the current experience looks like.
-3. Explore the provided code, and make start making a plan to implement the required features in three areas: responsive design, accessibility and offline use.
-4. Write code to implement the updates to get this site on its way to being a mobile-ready website.
+Open up a Chrome and browse http://localhost:8000
 
-### Note about ES6
+# Building the project
 
-Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write.
+If you still want to build the project, from the root folder you can run (You may need to have gulp installed globally)
 
-### Committing to GIT
+```bash
+npm install -g gulp
+gulp build
+```
 
-You can use `git commit -t .\commit-template.txt` to get the editor configured in your system to type the git commit message.
+## How to start the project for development
+
+This option does not need to build the before hand. It will serve the project and open it up in a browser tab for you
+
+```bash
+gulp watch
+```
+
+Gulp will watch for changes on the sources and rebuild the project automatically. The browser tab running the project will be automatically reloaded.
+
+- Also the api server must be running locally: https://github.com/udacity/mws-restaurant-stage-3
